@@ -1,0 +1,22 @@
+﻿@model List<MalawiProjectsInventoryMVC.Entities.Donor>
+<h1>Donors</h1>
+<a asp-action="Create">Create New Donor</a>
+<table>
+    <thead>
+    <tr><th>Name</th><th>Address</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+    @foreach (var donor in Model)
+    {
+        <tr>
+            <td>@donor.Name</td>
+            <td>@donor.Address</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@donor.Id">Edit</a>
+                <a asp-action="Details" asp-route-id="@donor.Id">Details</a>
+                <a asp-action="Delete" asp-route-id="@donor.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

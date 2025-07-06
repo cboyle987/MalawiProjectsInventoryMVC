@@ -1,0 +1,44 @@
+@model MalawiProjectsInventoryMVC.Entities.Donor
+<h1>@Model.Name</h1>
+<p><strong>Address:</strong> @Model.Address</p>
+
+<h2>Add Donation</h2>
+<form asp-action="AddDonation">
+    <input type="hidden" name="donorId" value="@Model.Id" />
+    <label>Donation Date</label>
+    <input type="date" name="donation.DonationDate" />
+    <button type="submit">Add Donation</button>
+</form>
+
+@if (Model.Donations != null && Model.Donations.Any()) {
+    <h3>Donations:</h3>
+    <ul>
+        @for (int i = 0; i < Model.Donations.Count; i++) {
+            var donation = Model.Donations[i];
+            <li>
+                <strong>@donation.DonationDate.ToShortDateString()</strong>
+                <a asp-action="PrintQRCodes" asp-route-donorId="@Model.Id" asp-route-donationIndex="@i" target="_blank">Print QR Codes</a>
+                <ul>
+                    @foreach (var item in donation.DonatedItems) {
+                        <li>
+                            @item.Description - 
+                            Sold: @item.SoldDate?.ToShortDateString() - 
+                            £@item.SoldPrice
+                            @if (!item.SoldDate.HasValue)
+                            {
+                                <a asp-action="MarkItemSold" asp-route-donorId="@Model.Id" asp-route-itemId="@item.Id">Mark as Sold</a>
+                            }
+                        </li>
+                    }
+                </ul>
+
+                <form asp-action="AddItem">
+                    <input type="hidden" name="donorId" value="@Model.Id" />
+                    <input type="hidden" name="donationIndex" value="@i" />
+                    <input type="text" name="item.Description" placeholder="Item Description" />
+                    <button type="submit">Add Item</button>
+                </form>
+            </li>
+        }
+    </ul>
+}

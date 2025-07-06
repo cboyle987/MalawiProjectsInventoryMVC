@@ -1,0 +1,86 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+   /* Base QR layout */
+ .qr-grid {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: space-between;
+ }
+
+.qr-box {
+  width: 48%;
+  height: 48%;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  padding: 10px;
+  text-align: center;
+  page-break-inside: avoid;
+}
+
+.qr-box img {
+  max-width: 100%;
+  height: auto;
+}
+
+.qr-box p {
+  font-size: 10pt;
+  word-break: break-word;
+}
+
+/* Hide everything except QR content when printing */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  button {
+    display: none;
+  }
+
+  .qr-grid {
+    margin: 0;
+  }
+
+  .qr-box {
+    page-break-inside: avoid;
+  }
+  
+  header {
+    display: none;
+  }
+  
+  footer {
+    display: none;
+  }
+}

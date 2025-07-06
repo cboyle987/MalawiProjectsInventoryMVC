@@ -1,0 +1,12 @@
+@model MalawiProjectsInventoryMVC.ViewModels.MarkAsSoldViewModel
+<h2>Mark Item as Sold</h2>
+<p><strong>Description:</strong> @Model.Description</p>
+<form asp-action="MarkItemSold" asp-route-donorId="@ViewContext.RouteData.Values["donorId"]" method="post">
+    <input type="hidden" name="ItemId" value="@Model.ItemId" />
+    <input type="hidden" name="DonorId" value="@Model.DonorId" />
+    <label>Sold Date</label>
+    <input type="date" asp-for="SoldDate" class="form-control" />
+    <label>Sold Price</label>
+    <input type="number" asp-for="SoldPrice" class="form-control" step="0.01" />
+    <button type="submit">Save</button>
+</form>

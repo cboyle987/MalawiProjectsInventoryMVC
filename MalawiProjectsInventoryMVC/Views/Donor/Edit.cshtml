@@ -1,0 +1,10 @@
+@model MalawiProjectsInventoryMVC.ViewModels.EditDonorViewModel
+<h1>Edit Donor</h1>
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <label>Name</label>
+    <input asp-for="Name" />
+    <label>Address</label>
+    <input asp-for="Address" />
+    <button type="submit">Save</button>
+</form>
