@@ -1,12 +1,45 @@
 @model MalawiProjectsInventoryMVC.ViewModels.MarkAsSoldViewModel
-<h2>Mark Item as Sold</h2>
-<p><strong>Description:</strong> @Model.Description</p>
-<form asp-action="MarkItemSold" asp-route-donorId="@ViewContext.RouteData.Values["donorId"]" method="post">
-    <input type="hidden" name="ItemId" value="@Model.ItemId" />
-    <input type="hidden" name="DonorId" value="@Model.DonorId" />
-    <label>Sold Date</label>
-    <input type="date" asp-for="SoldDate" class="form-control" />
-    <label>Sold Price</label>
-    <input type="number" asp-for="SoldPrice" class="form-control" step="0.01" />
-    <button type="submit">Save</button>
-</form>
+
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-currency-pound me-2"></i> Mark Item as Sold</h4>
+        </div>
+
+        <div class="card-body">
+            <p><strong>Description:</strong> @Model.Description</p>
+
+            <form asp-action="MarkItemSold"
+                  asp-route-donorId="@ViewContext.RouteData.Values["donorId"]"
+                  method="post" class="needs-validation" novalidate>
+
+                <input type="hidden" name="ItemId" value="@Model.ItemId" />
+                <input type="hidden" name="DonorId" value="@Model.DonorId" />
+
+                <div class="mb-3">
+                    <label asp-for="SoldDate" class="form-label">Sold Date</label>
+                    <input asp-for="SoldDate" type="date" class="form-control" />
+                    <span asp-validation-for="SoldDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SoldPrice" class="form-label">Sold Price (£)</label>
+                    <input asp-for="SoldPrice" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="SoldPrice" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Details"
+                       asp-route-id="@Model.DonorId"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,20 +1,24 @@
-
-@{
-    ViewData["Title"] = "Create";
-}
 @model MalawiProjectsInventoryMVC.ViewModels.CreateDonorViewModel
-<h1>Create Donor</h1>
 
-<form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
+<div class="py-4">
+    <h1 class="mb-4">Create Donor</h1>
 
-    <label>Name</label>
-    <input asp-for="Name" class="form-control" />
-    <span asp-validation-for="Name" class="text-danger"></span>
+    <form asp-action="Create" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label">Name</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
 
-    <label>Address</label>
-    <input asp-for="Address" class="form-control" />
-    <span asp-validation-for="Address" class="text-danger"></span>
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label">Address</label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Create</button>
-</form>
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-1"></i> Save
+        </button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>

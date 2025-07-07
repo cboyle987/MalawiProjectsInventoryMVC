@@ -41,7 +41,7 @@ public class DonorController: Controller
         };
         _context.Donors.Add(donor);
         await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Details), new { id = donor.Id });
     }
 
     public async Task<IActionResult> Edit(string id)
@@ -65,7 +65,7 @@ public class DonorController: Controller
         donor.Address = vm.Address;
         _context.Donors.Update(donor);
         await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Details), new { id = vm.Id });
     }
 
     public async Task<IActionResult> Delete(string id)
@@ -91,6 +91,11 @@ public class DonorController: Controller
         var donor = await _context.Donors.FindAsync(donorId);
         if (donor == null) return NotFound();
 
+        if (donation.DonationDate == DateTime.MinValue)
+        {
+            ModelState.AddModelError( nameof(Donation.DonationDate),"Donation date must be selected");
+            return RedirectToAction(nameof(Details), new { id = donorId });
+        }
         donation.DonatedItems ??= new List<DonatedItem>();
         donor.Donations.Add(donation);
 

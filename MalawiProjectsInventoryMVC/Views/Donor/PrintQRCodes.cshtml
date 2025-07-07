@@ -14,7 +14,7 @@
 }
 
 <h1>QR Codes for @ViewBag.DonorName (@ViewBag.DonationDate.ToShortDateString())</h1>
-<button onclick="window.print()">Print QR Codes</button>
+<button class="btn btn-primary my-3" onclick="window.print()">  <i class="bi bi-printer"></i> Print QR Codes</button>
 
 <div class="qr-grid">
     @foreach (var item in Model)

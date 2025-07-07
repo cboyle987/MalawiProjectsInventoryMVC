@@ -65,7 +65,7 @@ body {
   }
 
   button {
-    display: none;
+    display: none !important;
   }
 
   .qr-grid {
