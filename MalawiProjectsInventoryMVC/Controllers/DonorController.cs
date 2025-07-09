@@ -82,7 +82,7 @@ public class DonorController: Controller
     {
         if (donation.DonationDate == DateTime.MinValue)
         {
-            ModelState.AddModelError( nameof(Donation.DonationDate),"Donation date must be selected");
+            ModelState.AddModelError( nameof(donation.DonationDate),"Donation date must be selected");
             return RedirectToAction(nameof(Details), new { id = donorId });
         }
 
