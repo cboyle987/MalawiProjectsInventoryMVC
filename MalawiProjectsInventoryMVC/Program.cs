@@ -1,4 +1,5 @@
 using MalawiProjectsInventoryMVC.Context;
+using MalawiProjectsInventoryMVC.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables(); // <- this line is key
 
 
 // Add authentication
@@ -52,6 +56,11 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
         builder.Configuration["Cosmos:AccountKey"],
         databaseName: builder.Configuration["Cosmos:DatabaseName"]);
 });
+
+// Service Registration.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDonorService, DonorService>();
 
 var app = builder.Build();
 

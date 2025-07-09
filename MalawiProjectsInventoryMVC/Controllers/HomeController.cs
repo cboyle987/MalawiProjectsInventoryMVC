@@ -1,21 +1,30 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MalawiProjectsInventoryMVC.Models;
+using MalawiProjectsInventoryMVC.Services;
+using MalawiProjectsInventoryMVC.ViewModels;
 
 namespace MalawiProjectsInventoryMVC.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IUserService  _userService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IUserService userService)
     {
         _logger = logger;
+        _userService = userService;
     }
 
     public IActionResult Index()
     {
-        return View();
+        var isAdmin = _userService.IsAdmin();
+        var vm = new HomeViewModel()
+        {
+            IsAdmin = isAdmin
+        };
+        return View(vm);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 using MalawiProjectsInventoryMVC.Context;
 using MalawiProjectsInventoryMVC.Entities;
+using MalawiProjectsInventoryMVC.Services;
 using MalawiProjectsInventoryMVC.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,17 +10,25 @@ namespace MalawiProjectsInventoryMVC.Controllers;
 
 public class DonorController: Controller
 {
-    private readonly DatabaseContext _context;
+    private readonly IDonorService _donorService;
+    private readonly IUserService _userService;
 
-    public DonorController(DatabaseContext context)
+    public DonorController(DatabaseContext context, IUserService userService, IDonorService donorService)
     {
-        _context = context;
+        _userService = userService;
+        _donorService = donorService;
     }
 
     public async Task<IActionResult> Index()
     {
-        var donors = await _context.Donors.ToListAsync();
-        return View(donors);
+        var isAdmin = _userService.IsAdmin();
+        var donors = await _donorService.GetAllDonors();
+        var vm = new DonorIndexViewModel()
+        {
+            Donors = donors,
+            IsAdmin = isAdmin
+        };
+        return View(vm);
     }
 
     public IActionResult Create()
@@ -32,21 +41,13 @@ public class DonorController: Controller
     public async Task<IActionResult> Create(CreateDonorViewModel createVm)
     {
         if (!ModelState.IsValid) return View(createVm);
-        var donor = new Donor()
-        {
-            Id = Guid.NewGuid().ToString(),
-            Donations = new List<Donation>(),
-            Name = createVm.Name,
-            Address = createVm.Address,
-        };
-        _context.Donors.Add(donor);
-        await _context.SaveChangesAsync();
+        var donor = await _donorService.AddDonor(createVm.Name, createVm.Address);
         return RedirectToAction(nameof(Details), new { id = donor.Id });
     }
 
     public async Task<IActionResult> Edit(string id)
     {
-        var donor = await _context.Donors.FindAsync(id);
+        var donor = await _donorService.GetDonor(id);
         var vm = new EditDonorViewModel()
         {
             Id = donor.Id,
@@ -60,117 +61,79 @@ public class DonorController: Controller
     public async Task<IActionResult> Edit(EditDonorViewModel vm)
     {
         if (!ModelState.IsValid) return View(vm);
-        var donor = await _context.Donors.FindAsync(vm.Id);
-        donor.Name = vm.Name;
-        donor.Address = vm.Address;
-        _context.Donors.Update(donor);
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Details), new { id = vm.Id });
+        var donor = await _donorService.EditDonor(vm.Id, vm.Name, vm.Address);
+        return RedirectToAction(nameof(Details), new { id = donor.Id });
     }
 
     public async Task<IActionResult> Delete(string id)
     {
-        var donor = await _context.Donors.FindAsync(id);
-        if (donor != null)
-        {
-            _context.Donors.Remove(donor);
-            await _context.SaveChangesAsync();
-        }
+        await _donorService.DeleteDonor(id);
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Details(string id)
     {
-        var donor = await _context.Donors.FindAsync(id);
+        var donor = await _donorService.GetDonor(id);
         return View(donor);
     }
 
     [HttpPost]
     public async Task<IActionResult> AddDonation(string donorId, Donation donation)
     {
-        var donor = await _context.Donors.FindAsync(donorId);
-        if (donor == null) return NotFound();
-
         if (donation.DonationDate == DateTime.MinValue)
         {
             ModelState.AddModelError( nameof(Donation.DonationDate),"Donation date must be selected");
             return RedirectToAction(nameof(Details), new { id = donorId });
         }
-        donation.DonatedItems ??= new List<DonatedItem>();
-        donor.Donations.Add(donation);
 
-        _context.Update(donor);
-        await _context.SaveChangesAsync();
+        await _donorService.AddDonation(donorId, donation);
         return RedirectToAction("Details", new { id = donorId });
     }
 
     [HttpPost]
     public async Task<IActionResult> AddItem(string donorId, int donationIndex, DonatedItem item)
     {
-        var donor = await _context.Donors.FindAsync(donorId);
-        if (donor == null || donationIndex >= donor.Donations.Count) return NotFound();
-
-        item.Id = Guid.NewGuid().ToString();
-        donor.Donations[donationIndex].DonatedItems.Add(item);
-
-        _context.Update(donor);
-        await _context.SaveChangesAsync();
+        await _donorService.AddItem(donorId, donationIndex, item);
         return RedirectToAction("Details", new { id = donorId });
     }
     
     public async Task<IActionResult> MarkItemSold(string donorId, string itemId)
     {
-        var donor = await _context.Donors.FindAsync(donorId);
-        if (donor == null) return NotFound();
-
-        foreach (var donation in donor.Donations)
+        var item = await _donorService.GetDonatedItem(donorId, itemId);
+        if (item == null)
         {
-            var item = donation.DonatedItems.FirstOrDefault(i => i.Id == itemId);
-            if (item != null)
-            {
-                var vm = new MarkAsSoldViewModel()
-                {
-                    Description = item.Description,
-                    ItemId = item.Id,
-                    DonorId = donor.Id,
-                    SoldDate = DateTime.Today,
-                    SoldPrice = 0.00
-                };
-                
-                return View(vm);
-            }
+            return NotFound();
         }
 
-        return NotFound();
+        var vm = new MarkAsSoldViewModel()
+        {
+            Description = item.Description,
+            DonorId = donorId,
+            ItemId = itemId,
+            SoldDate = DateTime.Today,
+            SoldPrice = 0.00
+        };
+        return View(vm);
     }
 
     [HttpPost]
     public async Task<IActionResult> MarkItemSold(MarkAsSoldViewModel vm)
     {
-        var donor = await _context.Donors.FindAsync(vm.DonorId);
-        if (donor == null) return NotFound();
-
-        foreach (var donation in donor.Donations)
+        if (!ModelState.IsValid) return View(vm);
+        var updatedItem = new DonatedItem()
         {
-            var item = donation.DonatedItems.FirstOrDefault(i => i.Id == vm.ItemId);
-            if (item != null)
-            {
-                item.SoldDate = vm.SoldDate;
-                item.SoldPrice = vm.SoldPrice;
-                break;
-            }
-        }
-
-        _context.Update(donor);
-        await _context.SaveChangesAsync();
+            Id = vm.ItemId,
+            Description = vm.Description,
+            SoldDate = vm.SoldDate,
+            SoldPrice = vm.SoldPrice
+        };
+        await _donorService.UpdateItem(vm.DonorId, updatedItem);
         return RedirectToAction("Details", new { id = vm.DonorId });
     }
     
     public async Task<IActionResult> PrintQRCodes(string donorId, int donationIndex)
     {
-        var donor = await _context.Donors.FindAsync(donorId);
-        if (donor == null || donationIndex >= donor.Donations.Count)
-            return NotFound();
+        var donor = await _donorService.GetDonor(donorId);
 
         var donation = donor.Donations[donationIndex];
 

@@ -1,4 +1,4 @@
-﻿@model List<MalawiProjectsInventoryMVC.Entities.Donor>
+﻿@model MalawiProjectsInventoryMVC.ViewModels.DonorIndexViewModel
 
 <div class="py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -18,18 +18,21 @@
             </tr>
             </thead>
             <tbody>
-            @foreach (var donor in Model)
+            @foreach (var donor in Model.Donors)
             {
                 <tr>
                     <td>@donor.Name</td>
                     <td>@donor.Address</td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@donor.Id" class="btn btn-sm btn-info me-1 text-white">
-                            <i class="bi bi-eye">Details</i>
+                    <td class="d-flex justify-content-center">
+                        <a asp-action="Details" asp-route-id="@donor.Id" class="btn btn-sm btn-info me-3 text-white">
+                            <i class="bi bi-eye"> Add Donation</i>
                         </a>
-                        <a asp-action="Delete" asp-route-id="@donor.Id" class="btn btn-sm btn-danger">
-                            <i class="bi bi-trash">Delete</i>
-                        </a>
+                        @if (Model.IsAdmin)
+                        {
+                            <a asp-action="Delete" asp-route-id="@donor.Id" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"> Delete</i>
+                            </a>
+                        }
                     </td>
                 </tr>
             }

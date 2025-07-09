@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MalawiProjectsInventoryMVC.Controllers;
 
-public class AccountController: Controller
+public class AccountController(IConfiguration configuration) : Controller
 {
+    private string auth0domain = configuration["Auth0:Domain"] ?? throw new InvalidOperationException();
+
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties
